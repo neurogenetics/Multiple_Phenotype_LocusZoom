@@ -46,14 +46,14 @@ function multi_pheno_locuszoom(chr, start, end)
       
       //console.log(document.getElementById("interactive_ref_link").href);
       
-      /*//get the href value from the link created in ui.R
+      //get the href value from the link created in ui.R
       full_interactive_ref_link = document.getElementById("interactive_ref_link").href;
       //remove the specific file reference
       interactive_ref_link = full_interactive_ref_link.replace("rs26431_locus.json", "")
       
       
 
-      var ourdata = interactive_ref_link+input_snp+"_locus.json?"*/
+      //var ourdata = interactive_ref_link+input_snp+"_locus.json?"
       
 
       //var ourdata = "https://pdgenetics.shinyapps.io/GWASBrowser/_w_619d378c/interactive_stats/"+input_snp+"_locus.json/"
@@ -97,13 +97,29 @@ function multi_pheno_locuszoom(chr, start, end)
     };
     // Define a set of studies/phenotypes and loop through them to add a data source and data layer for each one
     var phenos = [
-        { namespace: "fasting_glucose", title: "Fasting glucose meta-analysis", color: "rgb(212, 63, 58)", study_id: 31 },
+        /*{ namespace: "fasting_glucose", title: "Fasting glucose meta-analysis", color: "rgb(212, 63, 58)", study_id: 31 },
         { namespace: "fasting_insulin", title: "Fasting insulin meta-analysis", color: "rgb(238, 162, 54)", study_id: 32 },
         { namespace: "triglycerides", title: "Triglycerides meta-analysis", color: "rgb(92, 184, 92)", study_id: 29 },
-        { namespace: "cholesterol", title: "Total cholesterol meta-analysis", color: "rgb(53, 126, 189)", study_id: 30 }
+        { namespace: "cholesterol", title: "Total cholesterol meta-analysis", color: "rgb(53, 126, 189)", study_id: 30 },*/
+        { namespace:"MS", title:"MS", color: "rgb(255,0,0)"},
+        { namespace:"PD", title:"PD", color: "rgb(0,0,255)"}
     ];
     phenos.forEach(function(pheno){
+      if(pheno.namespace=="MS")
+      {
+        data_sources.add(pheno.namespace, ["AssociationLZ", {url: interactive_ref_link+"ms_plot_sumstats.json?", params: { analysis:3,id_field: "variant" }}]);
+        console.log(data_sources);
+      }
+      else if(pheno.namespace=="PD")
+      {
+        data_sources.add(pheno.namespace, ["AssociationLZ", {url: interactive_ref_link+"pd_plot_sumstats.json?", params: { analysis:3,id_field: "variant" }}]);
+        console.log(data_sources);
+      }
+      else
+      {
         data_sources.add(pheno.namespace, ["AssociationLZ", {url: apiBase + "statistic/single/", params: { source: pheno.study_id, id_field: "variant" }}]);
+      }
+         
         var association_data_layer_mods = {
             namespace: { "assoc": pheno.namespace },
             id: "associationpvalues_" + pheno.namespace,
@@ -126,8 +142,10 @@ function multi_pheno_locuszoom(chr, start, end)
             }
         };
         layout.panels[0].data_layers.push(LocusZoom.Layouts.get("data_layer", "association_pvalues", association_data_layer_mods));
+      
+       
     });
-
+console.log(data_sources);
 
   
          window.plot = LocusZoom.populate("#lz-plot", data_sources, layout);

@@ -12,7 +12,7 @@ shinyServer(function(input, output,session) {
         runjs(jsstring)
     })
     
-    observeEvent(input$plotButton,{
+    observeEvent(input$plotPhenoButton,{
 
         chr <- unlist(strsplit(input$rangeInput,":"))[1]
 
@@ -20,6 +20,13 @@ shinyServer(function(input, output,session) {
         end <- unlist(strsplit(unlist(strsplit(input$rangeInput,":"))[2],"-"))[2]
         
         jsstring <- paste0("multi_pheno_locuszoom('",chr,"',",start,",",end,")")
+        print(jsstring)
+        runjs(jsstring)
+    })
+    
+    observeEvent(input$plotLZButton,{
+        
+        jsstring <- paste0("do_locuszoom_stuff('rs26431',5,103257163,'5:102323766_C/T','EUR')")
         
         runjs(jsstring)
     })

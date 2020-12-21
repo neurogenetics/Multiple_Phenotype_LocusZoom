@@ -27,16 +27,20 @@ shinyUI( tagList(fluidPage(
                     h3("Starting Basepair Range:"),
                     textInput(inputId = "rangeInput", label = NULL, placeholder="1:12345-67890",width = "300px",value=""),
 
-                    actionButton(inputId = "plotButton", label = "Generate Plot")
-                    
+                    actionButton(inputId = "plotPhenoButton", label = "Generate Pheno Plot"),
+                    actionButton(inputId = "plotLZButton", label = "Generate Normal Plot")
                     
                     
                 ),
                 sidebar_fullCollapse = TRUE,
                 dashboardBody(
-                    
-                    htmlOutput("interactiveLZ"),
-                    div(id="lz-plot",class="lz-container-responsive")
+                    fluidRow(
+                        column(                 
+                            htmlOutput("interactiveLZ"),
+                            div(id="lz-plot",class="lz-container-responsive"),
+                            width = 6)
+                    )
+
                     )
                     
                 ))
