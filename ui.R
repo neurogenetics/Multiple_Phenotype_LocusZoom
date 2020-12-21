@@ -19,24 +19,7 @@ shinyUI( tagList(fluidPage(
             dashboardPagePlus(    
                 title = "PD Genetic Landscape Plot", skin = "black",
                 dashboardHeaderPlus(
-                    title = "locus zoom",
-                    left_menu = tagList(
-                        fluidRow(
-                            column(
-                                div(
-                                    #searchbar code in plot.js
-                                    searchInput("searchInputBar", placeholder = "rs114138760, PMVK, 1:154898185", btnSearch = icon("search"),btnReset  = icon("remove"), width = "425px" )
-                                ),
-                                width = 12
-                            )
-                        )
-                    ),
-                    tags$li(class = "dropdown", actionBttn(
-                        inputId = "download_button",
-                        label = "Download Plot", 
-                        style = "material-flat",
-                        color = "primary"
-                    ))
+                    title = "locus zoom"
                 ),
                 dashboardSidebar(
                     width = 400,
