@@ -1,5 +1,24 @@
 //To pick up changes to this you may need to clear cached files in the browser
 
+//starting range to display on plot
+var default_range = {
+  chr:"1",
+  start:153983036,
+  end:155983036
+}
+
+var default_width = 1200;
+var default_height = 600;
+
+// Define a set of studies/phenotypes
+var phenos = [
+
+    { namespace:"MS", title:"MS", filename:"ms_sumstats_chr1_153983036_155983036.json", color: "rgb(255,0,0)"},
+    { namespace:"PD", title:"PD", filename:"pd_sumstats_chr1_153983036_155983036.json", color: "rgb(0,0,255)"}
+];
+    
+    
+    
 function do_locuszoom_stuff(input_snp, input_chr, input_bp, input_formatsnp,population)
 {
 
@@ -40,29 +59,18 @@ function do_locuszoom_stuff(input_snp, input_chr, input_bp, input_formatsnp,popu
 }
 
 
-function multi_pheno_locuszoom(chr, start, end)
+function multi_pheno_locuszoom(plot_width = default_width, plot_height = default_height,chr= default_range.chr, start= default_range.start, end = default_range.end)
 {
       var apiBase = "https://portaldev.sph.umich.edu/api/v1/";
       
-      //console.log(document.getElementById("interactive_ref_link").href);
-      
+
       //get the href value from the link created in ui.R
       full_interactive_ref_link = document.getElementById("interactive_ref_link").href;
       //remove the specific file reference
       interactive_ref_link = full_interactive_ref_link.replace("rs26431_locus.json", "")
       
-      
-
-      //var ourdata = interactive_ref_link+input_snp+"_locus.json?"
-      
-
-      //var ourdata = "https://pdgenetics.shinyapps.io/GWASBrowser/_w_619d378c/interactive_stats/"+input_snp+"_locus.json/"
-      //var ourdata = "http://127.0.0.1:6415//interactive_stats/"+input_snp+"_locus.json/"//"http://127.0.0.1:5103/rs114138760_locus.json/" 
-
       var data_sources = new LocusZoom.DataSources()
-        //.add("assoc", ["AssociationLZ", {url:apiBase + "statistic/single/", params: {source: 45, id_field: "variant"}}])
-        //.add("assoc", ["AssociationLZ", {url: ourdata, params: { analysis:3, id_field: "variant" }}])
-        .add("ld", ["LDLZ2", { url: "https://portaldev.sph.umich.edu/ld/"}])//api/v1/pair/LD/"}])
+        .add("ld", ["LDLZ2", { url: "https://portaldev.sph.umich.edu/ld/"}])
         .add("gene", ["GeneLZ", { url: apiBase + "annotation/genes/", params: { build: 'GRCh37' } }])
         .add("recomb", ["RecombLZ", { url: apiBase + "annotation/recomb/results/", params: { build: 'GRCh37' } }])
         .add("constraint", ["GeneConstraintLZ", { url: "https://gnomad.broadinstitute.org/api", params: { build: 'GRCh37' } }]);
@@ -84,10 +92,10 @@ function multi_pheno_locuszoom(chr, start, end)
   
   
         
-      layout = {
-        width: 800,
-        height: 500,
-        responsive_resize: true,
+     var layout = {
+        width: plot_width,
+        height: plot_height,
+        responsive_resize: false,
         panels: [
             LocusZoom.Layouts.get("panel", "association", association_panel_mods),
             LocusZoom.Layouts.get("panel", "genes", { namespace: { "gene": "gene" } })
@@ -95,31 +103,13 @@ function multi_pheno_locuszoom(chr, start, end)
         toolbar: LocusZoom.Layouts.get("toolbar","standard_plot"),
         state: { genome_build: 'GRCh37',ld_pop:'EUR', chr:chr, start: start, end: end}
     };
-    // Define a set of studies/phenotypes and loop through them to add a data source and data layer for each one
-    var phenos = [
-        /*{ namespace: "fasting_glucose", title: "Fasting glucose meta-analysis", color: "rgb(212, 63, 58)", study_id: 31 },
-        { namespace: "fasting_insulin", title: "Fasting insulin meta-analysis", color: "rgb(238, 162, 54)", study_id: 32 },
-        { namespace: "triglycerides", title: "Triglycerides meta-analysis", color: "rgb(92, 184, 92)", study_id: 29 },
-        { namespace: "cholesterol", title: "Total cholesterol meta-analysis", color: "rgb(53, 126, 189)", study_id: 30 },*/
-        { namespace:"MS", title:"MS", color: "rgb(255,0,0)"},
-        { namespace:"PD", title:"PD", color: "rgb(0,0,255)"}
-    ];
+
+    // loop through phenotypes to add a data source and data layer for each one
     phenos.forEach(function(pheno){
-      if(pheno.namespace=="MS")
-      {
-        data_sources.add(pheno.namespace, ["AssociationLZ", {url: interactive_ref_link+"ms_plot_sumstats.json?", params: { analysis:3,id_field: "variant" }}]);
+      
+        data_sources.add(pheno.namespace, ["AssociationLZ", {url: interactive_ref_link+pheno.filename+"?", params: { analysis:3,id_field: "variant" }}]);
         console.log(data_sources);
-      }
-      else if(pheno.namespace=="PD")
-      {
-        data_sources.add(pheno.namespace, ["AssociationLZ", {url: interactive_ref_link+"pd_plot_sumstats.json?", params: { analysis:3,id_field: "variant" }}]);
-        console.log(data_sources);
-      }
-      else
-      {
-        data_sources.add(pheno.namespace, ["AssociationLZ", {url: apiBase + "statistic/single/", params: { source: pheno.study_id, id_field: "variant" }}]);
-      }
-         
+
         var association_data_layer_mods = {
             namespace: { "assoc": pheno.namespace },
             id: "associationpvalues_" + pheno.namespace,
@@ -145,47 +135,9 @@ function multi_pheno_locuszoom(chr, start, end)
       
        
     });
-console.log(data_sources);
 
   
          window.plot = LocusZoom.populate("#lz-plot", data_sources, layout);
-         
-         
-         
-         // Create a method to parse a region string into a 600Kb genome range and load it
-    function jumpTo(region) {
-      var target = region.split(":");
-      var chr = target[0];
-      var pos = target[1];
-      var start = 0;
-      var end = 0;
-      if (!pos.match(/[-+]/)) {
-        start = +pos - 300000
-        end = +pos + 300000
-      }
-      plot.applyState({ chr: chr, start: start, end: end, ldrefvar: "" });
-      return false;
-    }
-
-    // Populate a list of top hits links for the plot
-    var top_hits = [
-      ["16:53819169", "FTO"],
-      ["15:58680954", "LIPC"],
-      ["2:21231524", "APOB"],
-      ["16:56959412", "CETP"],
-      ["7:44196069", "GCK"],
-      ["2:27518370", "GCKR"],
-      ["10:114758349", "TCF7L2"],
-      ["7:15052860", "DGKB"],
-      ["2:27772914", "MRPL33"],
-      ["6:20679709", "CDKAL1"],
-      ["19:11091630", "LDLR"],
-      ["11:116778201", "APOA1"],
-      ["8:19986711", "LPL"],
-      ["11:92708710", "MTNR1B"]
-    ];
-    top_hits.forEach(function(hit){
-      d3.select("ul.top_hits").append("li")
-        .html("<a href=\"javascript:void(0);\" onclick=\"javascript:jumpTo('" + hit[0] + "');\">" + hit[1] + "</a>");
-    });
 }
+
+
