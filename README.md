@@ -70,3 +70,10 @@ var phenos = [
 ### 4. Run the Shiny App
 ### 5. Display All Genes and Download PNG
    Don't forget to click the "Resize" button to display all genes in the region!
+   
+### 6. Alter Plot
+   Shift + scroll to zoom in and out on plot.
+   
+   Click and drag to move up/down chromosome.
+   
+   Click "Data Layers" to alter the display of the variants. 
