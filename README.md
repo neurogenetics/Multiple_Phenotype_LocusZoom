@@ -6,7 +6,7 @@
 
 ## Setup
 ### 1. Format Summary Statistics into JSON Format
-   Follow code in `locus_zoom_data.ipynb` to do the conversion explained below.
+   Follow code in `locus_zoom_data.ipynb` or `locus_zoom_data.R` to do the conversion explained below.
    
    We want to get the chromosome, basepair, pvalue, reference allele, and variant id (can be chr:bp, rsid, etc) from the summary statistics and save in a json format that the interactive locus zoom tool can read.
    For example, we want to convert something like:
@@ -38,7 +38,7 @@ CHR | BP | SNP | A1 | A2 | N | P | OR
 
 ### 3. Change Arguments in `call_locus_zoom.js`
 ####   a. Display Range
-  Change the values of the default_range variable to select the region to plot
+  Change the values of the default_range variable to select the region to plot.
   
 ```
 var default_range = {
